@@ -140,8 +140,45 @@ const entries: Entry[] = raw.map(([topic, codes, aliases]) => ({
 const stop = new Set("wer ist sind für fuer zuständig zustaendig bei an wen muss kann ich mich mit meinem meiner meine eine einen einem dem der die das und oder bitte frage thema geht es um zum zur wegen brauche möchte moechte wissen hilft helfen zuständigkeit zustaendigkeit".split(" "));
 const normalize = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 
+// Umgangssprache und KSA-typische Kurzformen werden vor dem Vergleich erweitert.
+const synonyms: Record<string, string> = {
+  maturfeier: "abschlussfeier matura feier",
+  maturafeier: "abschlussfeier matura feier",
+  maturabschluss: "abschlussfeier matura",
+  abschlussfest: "abschlussfeier",
+  maturarbeit: "maturaarbeit matura arbeit",
+  ma: "maturaarbeit",
+  fma: "fachmaturaarbeit",
+  zeugnis: "notenwesen zeugnisse",
+  zeugnisse: "notenwesen zeugnisse",
+  schliessfach: "spind",
+  locker: "spind",
+  kopierer: "kopiergeraete",
+  drucker: "kopiergeraete",
+  krankmeldung: "kranken app absenz",
+  abmeldung: "absenz dispenswesen",
+  urlaub: "dispens dispenswesen",
+  austauschjahr: "auslandsjahr austauschschueler",
+  gastschueler: "austauschschueler",
+  infoabend: "informationsabend",
+  openhouse: "tag der offenen schulen",
+  schulstart: "eroeffnung schuljahr erster schultag",
+  schulbeginn: "eroeffnung schuljahr erster schultag",
+  nachteil: "nachteilsausgleich nam",
+  schuelerrat: "schuelerschaftsrat ssr",
+  klassensprecher: "klassenchef meeting",
+  website: "website homepage webseite",
+  homepage: "website",
+  rechnung: "fakturierung schulgeldrechnung",
+  bewerbung: "spontanbewerbungen personelles",
+  praktikum: "fms praktika",
+  alumni: "ehemaligenvereine",
+};
+
+const expandQuery = (query: string) => normalize(query).split(" ").flatMap((word) => [word, ...(synonyms[word]?.split(" ") ?? [])]).join(" ");
+
 function score(entry: Entry, query: string) {
-  const q = normalize(query);
+  const q = expandQuery(query);
   if (!q) return 0;
   const hay = normalize(`${entry.topic} ${entry.aliases ?? ""} ${entry.people.join(" ")}`);
   if (hay.includes(q)) return 100 + q.length;
