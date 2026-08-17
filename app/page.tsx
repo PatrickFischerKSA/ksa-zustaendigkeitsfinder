@@ -2,7 +2,8 @@
 
 import { FormEvent, useMemo, useState } from "react";
 
-type Entry = { topic: string; people: string[]; aliases?: string };
+type Entry = { topic: string; contacts: string[]; leadership: string[]; aliases?: string };
+type DirectoryMode = "all" | "shared" | null;
 
 const names: Record<string, string> = {
   OsM: "Martin von Ostheim",
@@ -10,8 +11,11 @@ const names: Record<string, string> = {
   RaF: "Felix Rauchenstein",
   GrJo: "Jonas Gresch",
   AlC: "Christian Albrecht",
-  GrJ: "GrJ",
-  ReRo: "ReRo",
+  KnA: "Angelika Knobel",
+  DiE: "Elsbeth Diethelm",
+  BrO: "Olivia Brunner",
+  ReRo: "Romana Resegatti",
+  GrJ: "Jonas Gresch",
 };
 
 const raw: Array<[string, string, string?]> = [
@@ -131,11 +135,23 @@ const raw: Array<[string, string, string?]> = [
   ["Zukunftstag", "ZüT", "zukunft tag"],
 ];
 
-const entries: Entry[] = raw.map(([topic, codes, aliases]) => ({
+const contactsForIndex = (index: number) => {
+  if (index <= 26) return ["KnA"];
+  if (index <= 60) return ["DiE"];
+  if (index <= 87) return ["ReRo", "GrJ"];
+  if (index <= 102) return ["BrO"];
+  if (index <= 108) return ["ReRo"];
+  return ["GrJ"];
+};
+
+const entries: Entry[] = raw.map(([topic, codes, aliases], index) => ({
   topic,
-  people: codes.split("/"),
+  contacts: contactsForIndex(index),
+  leadership: codes.split("/"),
   aliases,
 }));
+
+const sharedEntries = entries.filter((entry) => entry.contacts.length > 1);
 
 const stop = new Set("wer ist sind für fuer zuständig zustaendig bei an wen muss kann ich mich mit meinem meiner meine eine einen einem dem der die das und oder bitte frage thema geht es um zum zur wegen brauche möchte moechte wissen hilft helfen zuständigkeit zustaendigkeit".split(" "));
 const normalize = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
@@ -180,7 +196,7 @@ const expandQuery = (query: string) => normalize(query).split(" ").flatMap((word
 function score(entry: Entry, query: string) {
   const q = expandQuery(query);
   if (!q) return 0;
-  const hay = normalize(`${entry.topic} ${entry.aliases ?? ""} ${entry.people.join(" ")}`);
+  const hay = normalize(`${entry.topic} ${entry.aliases ?? ""} ${entry.contacts.join(" ")} ${entry.leadership.join(" ")}`);
   if (hay.includes(q)) return 100 + q.length;
   const words = q.split(" ").filter((word) => word.length > 1 && !stop.has(word));
   return words.reduce((sum, word) => {
@@ -195,7 +211,7 @@ const examples = ["Ich brauche eine Schulbestätigung", "Wer hilft bei Absenzen?
 export default function Home() {
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
-  const [showAll, setShowAll] = useState(false);
+  const [directoryMode, setDirectoryMode] = useState<DirectoryMode>(null);
 
   const results = useMemo(() => entries
     .map((entry) => ({ entry, score: score(entry, query) }))
@@ -203,7 +219,8 @@ export default function Home() {
     .sort((a, b) => b.score - a.score || a.entry.topic.localeCompare(b.entry.topic, "de"))
     .slice(0, 6), [query]);
 
-  const submit = (event: FormEvent) => { event.preventDefault(); setQuery(input.trim()); setShowAll(false); };
+  const submit = (event: FormEvent) => { event.preventDefault(); setQuery(input.trim()); setDirectoryMode(null); };
+  const directoryEntries = directoryMode === "shared" ? sharedEntries : entries;
 
   return (
     <main>
@@ -211,7 +228,10 @@ export default function Home() {
         <a className="brand" href="#top" aria-label="KSA Zuständigkeitsfinder Startseite">
           <span className="brandMark">ksa</span><span className="brandText">Zuständigkeitsfinder</span>
         </a>
-        <button className="directoryLink" onClick={() => setShowAll((value) => !value)}>{showAll ? "Übersicht schliessen" : "Alle Themen A–Z"}</button>
+        <div className="directoryActions">
+          <button className="sharedLink" onClick={() => setDirectoryMode((value) => value === "shared" ? null : "shared")}>Gemeinsame Zuständigkeiten <span>{sharedEntries.length}</span></button>
+          <button className="directoryLink" onClick={() => setDirectoryMode((value) => value === "all" ? null : "all")}>{directoryMode ? "Übersicht schliessen" : "Alle Themen A–Z"}</button>
+        </div>
       </header>
 
       <section className="hero" id="top">
@@ -229,7 +249,7 @@ export default function Home() {
 
         <div className="examples" aria-label="Beispielfragen">
           <span>Zum Ausprobieren:</span>
-          {examples.map((example) => <button key={example} onClick={() => { setInput(example); setQuery(example); setShowAll(false); }}>{example}</button>)}
+          {examples.map((example) => <button key={example} onClick={() => { setInput(example); setQuery(example); setDirectoryMode(null); }}>{example}</button>)}
         </div>
       </section>
 
@@ -243,20 +263,33 @@ export default function Home() {
             <div className="cardNumber">{String(index + 1).padStart(2, "0")}</div>
             <div className="cardBody">
               <p className="topic">{entry.topic}</p>
-              <div className="people">
-                {entry.people.map((code) => <div className="person" key={code}>
-                  <span className="avatar">{names[code]?.split(" ").map((part) => part[0]).join("").slice(0, 2) || code.slice(0, 2)}</span>
-                  <div><strong>{names[code] ?? code}</strong><small>{code}</small></div>
-                </div>)}
+              <div className="responsibilities">
+                <div className="responsibilityGroup">
+                  <div className="responsibilityLabel">
+                    <span>Ansprechperson</span>
+                    {entry.contacts.length > 1 && <b>Gemeinsame Zuständigkeit · {entry.contacts.length} Personen</b>}
+                  </div>
+                  <div className="people">
+                    {entry.contacts.map((code) => <div className="person contactPerson" key={code}>
+                      <span className="avatar">{names[code]?.split(" ").map((part) => part[0]).join("").slice(0, 2) || code.slice(0, 2)}</span>
+                      <div><strong>{names[code] ?? code}</strong><small>{code}</small></div>
+                    </div>)}
+                  </div>
+                </div>
+                <div className="responsibilityGroup leadershipGroup">
+                  <div className="responsibilityLabel"><span>SL-Verantwortung</span>{entry.leadership.length > 1 && <b>Geteilt</b>}</div>
+                  <div className="leadershipNames">{entry.leadership.map((code) => <span key={code}>{names[code] ?? code} <small>{code}</small></span>)}</div>
+                </div>
               </div>
             </div>
           </article>)}
         </div> : <div className="empty"><span>?</span><p>Versuche es mit einem kürzeren Stichwort – zum Beispiel „Zeugnis“, „Kopierer“ oder „Studienwoche“.</p></div>}
       </section>}
 
-      {showAll && <section className="directory">
-        <div className="sectionHead"><div><span className="kicker">Verzeichnis</span><h2>Alle Aufgaben von A bis Z</h2></div><span className="count">{entries.length} Themen</span></div>
-        <div className="directoryGrid">{[...entries].sort((a,b) => a.topic.localeCompare(b.topic, "de")).map((entry) => <button key={entry.topic} onClick={() => { setInput(entry.topic); setQuery(entry.topic); setShowAll(false); window.scrollTo({ top: 420, behavior: "smooth" }); }}><span>{entry.topic}</span><b>{entry.people.map((code) => names[code] ?? code).join(" · ")}</b></button>)}</div>
+      {directoryMode && <section className="directory">
+        <div className="sectionHead"><div><span className="kicker">{directoryMode === "shared" ? "Doppelte Verantwortung" : "Verzeichnis"}</span><h2>{directoryMode === "shared" ? "Gemeinsame Zuständigkeiten" : "Alle Aufgaben von A bis Z"}</h2></div><span className="count">{directoryEntries.length} Themen</span></div>
+        {directoryMode === "shared" && <p className="directoryIntro">Für diese Aufgaben sind Romana Resegatti und Jonas Gresch gemeinsam die Ansprechpersonen.</p>}
+        <div className="directoryGrid">{[...directoryEntries].sort((a,b) => a.topic.localeCompare(b.topic, "de")).map((entry) => <button className={entry.contacts.length > 1 ? "sharedDirectoryItem" : ""} key={entry.topic} onClick={() => { setInput(entry.topic); setQuery(entry.topic); setDirectoryMode(null); window.scrollTo({ top: 420, behavior: "smooth" }); }}><span>{entry.topic}</span><div className="directoryMeta"><b>{entry.contacts.map((code) => names[code] ?? code).join(" · ")}</b>{entry.contacts.length > 1 && <em>Gemeinsam</em>}</div></button>)}</div>
       </section>}
 
       <footer><span>ksa</span><p>Aufgabenbereiche der Schulleitung, Sekretariate und Verwaltung · In Kraft per 01.04.2026</p></footer>
