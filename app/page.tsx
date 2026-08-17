@@ -174,6 +174,17 @@ const synonyms: Record<string, string> = {
   krankmeldung: "kranken app absenz",
   abmeldung: "absenz dispenswesen",
   urlaub: "dispens dispenswesen",
+  dispensgesuch: "absenz dispenswesen dispens",
+  dispensationsgesuch: "absenz dispenswesen dispens",
+  dispensantrag: "absenz dispenswesen dispens",
+  dispensationsantrag: "absenz dispenswesen dispens",
+  dispensation: "absenz dispenswesen dispens",
+  freistellung: "absenz dispenswesen dispens",
+  freistellungsgesuch: "absenz dispenswesen dispens",
+  urlaubsgesuch: "absenz dispenswesen dispens",
+  urlaubsantrag: "absenz dispenswesen dispens",
+  schulbefreiung: "absenz dispenswesen dispens",
+  abwesenheitsgesuch: "absenz dispenswesen dispens",
   austauschjahr: "auslandsjahr austauschschueler",
   gastschueler: "austauschschueler",
   infoabend: "informationsabend",
@@ -206,7 +217,7 @@ function score(entry: Entry, query: string) {
   }, 0);
 }
 
-const examples = ["Ich brauche eine Schulbestätigung", "Wer hilft bei Absenzen?", "Mein Spind in Nuolen", "Frage zur Maturaarbeit"];
+const examples = ["Ich brauche eine Schulbestätigung", "Wo reiche ich ein Dispensgesuch ein?", "Mein Spind in Nuolen", "Frage zur Maturaarbeit"];
 
 export default function Home() {
   const [input, setInput] = useState("");
