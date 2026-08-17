@@ -73,6 +73,24 @@ h2 { font-family:Georgia, serif; font-size:clamp(31px,4vw,48px); font-weight:400
 footer { min-height:120px; display:flex; align-items:center; gap:28px; padding:30px clamp(24px,7vw,110px); background:var(--ink); color:white; }
 footer span { font-size:34px; font-weight:900; letter-spacing:-2px; }
 footer p { border-left:1px solid rgba(255,255,255,.25); padding-left:28px; color:rgba(255,255,255,.65); font-size:12px; }
+.gatePage { min-height:100vh; display:grid; place-items:center; padding:30px; background:radial-gradient(circle at 85% 10%, rgba(238,106,58,.12), transparent 30%), var(--cream); }
+.gateCard { width:min(760px,100%); padding:clamp(34px,6vw,70px); background:var(--paper); border:1px solid var(--line); box-shadow:0 26px 70px rgba(24,48,68,.1); }
+.gateBrand { display:flex; align-items:center; gap:15px; margin-bottom:56px; }
+.gateBrand strong { font-size:30px; letter-spacing:-2px; padding-right:15px; border-right:1px solid var(--line); }
+.gateBrand span { font-size:10px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; }
+.gateEyebrow { display:flex; align-items:center; gap:10px; color:var(--orange); font-size:10px; font-weight:800; letter-spacing:.17em; text-transform:uppercase; }
+.gateEyebrow span { width:30px; height:2px; background:var(--orange); }
+.gateCard h1 { font-size:clamp(45px,7vw,72px); margin:24px 0; }
+.gateCard > p { max-width:570px; color:var(--muted); line-height:1.6; }
+.gateForm { margin-top:34px; }
+.gateForm label { display:block; margin-bottom:9px; font-size:10px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; }
+.gateInputRow { display:flex; padding:6px; background:white; border:1px solid #b9b9b0; }
+.gateInputRow:focus-within { outline:2px solid var(--orange); outline-offset:2px; }
+.gateInputRow input { flex:1; min-width:0; padding:16px; border:0; outline:0; background:transparent; }
+.gateInputRow button { min-width:120px; border:0; padding:0 22px; color:white; background:var(--ink); font-weight:800; cursor:pointer; }
+.gateInputRow button:hover { background:var(--orange); }
+.gateInputRow button:disabled { opacity:.65; cursor:wait; }
+.gateError { margin:12px 0 0; color:#b94720; font-size:13px; }
 @media (max-width:760px) {
   .topbar { height:68px; }
   .brandText { display:none; }
@@ -91,4 +109,9 @@ footer p { border-left:1px solid rgba(255,255,255,.25); padding-left:28px; color
   .sectionHead { align-items:flex-start; }
   .count { margin-top:10px; white-space:nowrap; }
   footer { align-items:flex-start; }
+  .gatePage { padding:16px; }
+  .gateCard { padding:32px 24px; }
+  .gateBrand { margin-bottom:40px; }
+  .gateInputRow { display:block; }
+  .gateInputRow input, .gateInputRow button { width:100%; min-height:50px; }
 }

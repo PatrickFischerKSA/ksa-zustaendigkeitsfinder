@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
+import { PasswordGate } from "./PasswordGate";
+import { accessCookieName, accessToken, safeEqual } from "./password-auth";
+
+export const dynamic = "force-dynamic";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,17 +38,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const currentToken = cookieStore.get(accessCookieName)?.value ?? "";
+  const expectedToken = await accessToken();
+  const isAuthenticated = Boolean(expectedToken && safeEqual(currentToken, expectedToken));
+
   return (
     <html lang="de">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        {isAuthenticated ? children : <PasswordGate />}
       </body>
     </html>
   );
