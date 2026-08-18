@@ -55,6 +55,7 @@ h2 { font-family:Georgia, serif; font-size:clamp(31px,4vw,48px); font-weight:400
 .person strong { display:block; font-size:13px; }
 .person small { display:block; margin-top:2px; font-size:10px; color:var(--muted); letter-spacing:.08em; }
 .leadershipGroup { padding-top:13px; border-top:1px solid var(--line); }
+.leadershipFirst .leadershipGroup { order:-1; padding:0 0 13px; border-top:0; border-bottom:1px solid var(--line); }
 .leadershipNames { display:flex; flex-wrap:wrap; gap:6px 16px; color:var(--muted); font-size:12px; }
 .leadershipNames span { white-space:nowrap; }
 .leadershipNames small { color:#929b9f; font-size:9px; letter-spacing:.06em; }

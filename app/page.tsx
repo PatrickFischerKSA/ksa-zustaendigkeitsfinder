@@ -274,7 +274,7 @@ export default function Home() {
             <div className="cardNumber">{String(index + 1).padStart(2, "0")}</div>
             <div className="cardBody">
               <p className="topic">{entry.topic}</p>
-              <div className="responsibilities">
+              <div className={`responsibilities ${entry.topic === "Absenz- und Dispenswesen Schülerschaft" ? "leadershipFirst" : ""}`}>
                 <div className="responsibilityGroup">
                   <div className="responsibilityLabel">
                     <span>Ansprechperson</span>
